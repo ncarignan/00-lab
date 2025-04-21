@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Survey Website</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <h1>Survey Website</h1>
+  <form id="survey-form">
+  </form>
+  <button id="submit-btn">Submit</button>
+  <div id="responses"></div>
+
+  <script>
+    fetch("/api/survey")
+      .then(response => response.json())
+      .then(questions => {
+        const form = document.getElementById("survey-form");
+        questions.forEach(question => {
+          const input = document.createElement("input");
+          input.type = "text";
+          input.placeholder = question.question;
+          input.name = question.id;
+          form.appendChild(input);
+          form.appendChild(document.createElement("br"));
+        });
+      });
+
+    document.getElementById("submit-btn").addEventListener("click", () => {
+      const form = document.getElementById("survey-form");
+      const formData = new FormData(form);
+      const response = {};
+      for (let [key, value] of formData) {
+        response[key] = value;
+      }
+      fetch("/api/survey", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(response)
+      })
+      .then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error(error));
+    });
+  </script>
+</body>
+</html>
